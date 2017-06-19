@@ -1,34 +1,50 @@
 import json
 import DataframeConverter as dc
+import Const
 
-def convert_json(type, result):
+def convert_json(type, result, strToday):
     try:
 
         data = json.loads(result)
 
         if type == 'range_interest_ch':
-            convert_range_interest_ch(data)
-
-        elif type == '':
-            print("=========")
+            convert_df_to_csv(type, data, strToday)
+        elif type == 'range_compare_ch':
+            convert_df_to_csv(type, data, strToday)
         else:
             print('==========')
-    except RuntimeError as e:
-        print(e)
+    except RuntimeError as re:
+        print(re)
 
 # Skylife 관심채널 시청가구 변화추이
-def convert_range_interest_ch(data):
+def convert_df_to_csv(type, data, current_time):
     temp = []
+    temp_tot = []
     for item in data['chList']:
         for temprow in item['list']:
-            listitem = {}
-            listitem['time'] = item['time']
-            listitem['prgm_id'] = temprow['prgm_id']
-            listitem['ch_no'] = temprow['ch_no']
-            listitem['ch_nm'] = temprow['ch_nm']
-            listitem['disp_ch_nm'] = temprow['disp_ch_nm']
-            listitem['view_cnt'] = temprow['view_cnt']
-            listitem['tot_cnt'] = item['viewCntOTS'] + item['viewCntOTV']
+            list_item = {}
+            list_item['time'] = item['time']
+            list_item['prgm_id'] = temprow['prgm_id']
+            list_item['ch_no'] = temprow['ch_no']
+            list_item['ch_nm'] = temprow['ch_nm']
+            list_item['disp_ch_nm'] = temprow['disp_ch_nm']
+            list_item['view_cnt'] = temprow['view_cnt']
 
-            temp.append(listitem)
-    dc.export_csv('range_interest_ch', temp)
+            temp.append(list_item)
+
+        # 전체 시청가구수
+        list_item_tot = {}
+        list_item_tot['time'] = item['time']
+
+        # 실시간 채널 비교는 Skylife만
+        if type == Const.RANGE_INTEREST_CH:
+            list_item_tot['tot_view_cnt'] = item['viewCntOTS'] + item['viewCntOTV']
+        elif type == Const.RANGE_COMPARE_CH:
+            list_item_tot['tot_view_cnt'] = item['viewCntOTS']
+        temp_tot.append(list_item_tot)
+
+    # 상세 데이터 파일 저장
+    dc.export_csv(type, current_time, temp)
+
+    # 전체시청가구수 데이터 파일 저장
+    dc.export_csv(type+'_tot', current_time, temp_tot)
