@@ -6,22 +6,7 @@ import sys
 import JsonRangeInterestCh as cJson
 import Const
 
-if __name__ == "__main__":
-    print(sys.argv)
-
-http = httplib2.Http()
-
-domain = Const.DOMAIN
-url = domain + '/doLogin.do'
-body = {'loginId':Const.LOGIN_ID_LIVE,'loginPw':Const.LOGIN_PWD_LIVE, 'channel': 'on'}
-headers = {'Content-type': 'application/x-www-form-urlencoded'}
-response, content = http.request(url, 'POST', headers=headers, body=urllib.parse.urlencode(body))
-
-req_date_format = Const.REQ_DATE_FORMAT
-
-headers = {'Cookie': response['set-cookie']}
-
-# 대시보드 > SKylife 관심채널 시청가구 변화추이
+# 대시보드 > Skylife 관심채널 시청가구 변화추이
 # https://125.144.163.12:8080/chart/rangeInterestCh.do?lastTime=20170424172800&screenType=T&_=1493022523570
 def request_for_range_interest_ch():
 
@@ -65,14 +50,41 @@ def make_req_url(type, date, str_today):
         return domain + '/chart/rangeCompareCh.do?lastTime=' + str_today \
                + '&screenType=S&_=' + date.strftime("%s")
 
-sched = BlockingScheduler()
+if __name__ == "__main__":
 
-# Schedules job_function to be run on the third Friday
-# of June, July, August, November and December at 00:00, 01:00, 02:00 and 03:00
-# sched.add_job(job_function, 'cron', month='6-8,11-12', day='3rd fri', hour='0-3')
+    param_len = len(sys.argv)
 
-# Schedule job_function to be called every minute 5 second
-sched.add_job(request_for_range_interest_ch, 'cron', second='5')
-sched.add_job(request_for_range_compare_ch, trigger='cron', second='9')
+    if param_len < 3:
+        sys.exit("login info is empty")
 
-sched.start()
+    # loginId
+    login_id = sys.argv[1]
+
+    # loginPwd
+    login_pwd = sys.argv[2]
+
+    http = httplib2.Http()
+
+    domain = Const.DOMAIN
+    url = domain + '/doLogin.do'
+    body = {'loginId':login_id,'loginPw':login_pwd, 'channel': 'on'}
+
+    headers = {'Content-type': 'application/x-www-form-urlencoded'}
+
+    response, content = http.request(url, 'POST', headers=headers, body=urllib.parse.urlencode(body))
+
+    req_date_format = Const.REQ_DATE_FORMAT
+
+    headers = {'Cookie': response['set-cookie']}
+
+    sched = BlockingScheduler()
+
+    # Schedules job_function to be run on the third Friday
+    # of June, July, August, November and December at 00:00, 01:00, 02:00 and 03:00
+    # sched.add_job(job_function, 'cron', month='6-8,11-12', day='3rd fri', hour='0-3')
+
+    # Schedule job_function to be called every minute 5 second
+    sched.add_job(request_for_range_interest_ch, 'cron', second='5')
+    sched.add_job(request_for_range_compare_ch, trigger='cron', second='9')
+
+    sched.start()

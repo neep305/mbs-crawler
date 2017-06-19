@@ -12,7 +12,7 @@ def convert_json(type, result, strToday):
         elif type == 'range_compare_ch':
             convert_df_to_csv(type, data, strToday)
         else:
-            print('==========')
+            print('Not Available Yet')
     except RuntimeError as re:
         print(re)
 
@@ -20,6 +20,12 @@ def convert_json(type, result, strToday):
 def convert_df_to_csv(type, data, current_time):
     temp = []
     temp_tot = []
+
+    type_value = 'I'
+
+    if type == Const.RANGE_COMPARE_CH:
+        type_value = 'Y'
+
     for item in data['chList']:
         for temprow in item['list']:
             list_item = {}
@@ -29,13 +35,14 @@ def convert_df_to_csv(type, data, current_time):
             list_item['ch_nm'] = temprow['ch_nm']
             list_item['disp_ch_nm'] = temprow['disp_ch_nm']
             list_item['view_cnt'] = temprow['view_cnt']
-
+            list_item['api_type'] = type_value
             temp.append(list_item)
 
         # 전체 시청가구수
         list_item_tot = {}
         list_item_tot['time'] = item['time']
-
+        list_item_tot['api_type'] = type_value
+        
         # 실시간 채널 비교는 Skylife만
         if type == Const.RANGE_INTEREST_CH:
             list_item_tot['tot_view_cnt'] = item['viewCntOTS'] + item['viewCntOTV']
