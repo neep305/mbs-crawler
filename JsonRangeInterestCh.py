@@ -2,29 +2,31 @@ import json
 import DataframeConverter as dc
 import Const
 
-def convert_json(type, result, strToday):
+def convert_json(service_type, type, result, strToday):
     try:
 
         data = json.loads(result)
 
         if type == 'range_interest_ch':
-            convert_df_to_csv(type, data, strToday)
+            convert_df_to_csv(service_type, type, data, strToday)
         elif type == 'range_compare_ch':
-            convert_df_to_csv(type, data, strToday)
+            convert_df_to_csv(service_type, type, data, strToday)
         else:
             print('Not Available Yet')
     except RuntimeError as re:
         print(re)
 
 # Skylife 관심채널 시청가구 변화추이
-def convert_df_to_csv(type, data, current_time):
+def convert_df_to_csv(service_type, type, data, current_time):
     temp = []
     temp_tot = []
 
     type_value = 'I'
 
+    # print(service_type)
+
     if type == Const.RANGE_COMPARE_CH:
-        type_value = 'Y'
+        type_value = 'C'
 
     for item in data['chList']:
         for temprow in item['list']:
@@ -36,13 +38,16 @@ def convert_df_to_csv(type, data, current_time):
             list_item['disp_ch_nm'] = temprow['disp_ch_nm']
             list_item['view_cnt'] = temprow['view_cnt']
             list_item['api_type'] = type_value
+            list_item['service_type'] = service_type
+
             temp.append(list_item)
 
         # 전체 시청가구수
         list_item_tot = {}
         list_item_tot['time'] = item['time']
         list_item_tot['api_type'] = type_value
-        
+        list_item_tot['service_type'] = service_type
+
         # 실시간 채널 비교는 Skylife만
         if type == Const.RANGE_INTEREST_CH:
             list_item_tot['tot_view_cnt'] = item['viewCntOTS'] + item['viewCntOTV']
@@ -51,7 +56,13 @@ def convert_df_to_csv(type, data, current_time):
         temp_tot.append(list_item_tot)
 
     # 상세 데이터 파일 저장
-    dc.export_csv(type, current_time, temp)
+    if service_type == 'T':
+        dc.export_csv(type+'_tc', current_time, temp)
+    else:
+        dc.export_csv(type, current_time, temp)
 
     # 전체시청가구수 데이터 파일 저장
-    dc.export_csv(type+'_tot', current_time, temp_tot)
+    if service_type == 'T':
+        dc.export_csv(type+'_tc_tot', current_time, temp_tot)
+    else:
+        dc.export_csv(type+'_tot', current_time, temp_tot)

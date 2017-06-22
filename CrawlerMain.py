@@ -1,5 +1,6 @@
 from datetime import datetime, timedelta
 from apscheduler.schedulers.blocking import BlockingScheduler
+# from apscheduler.schedulers.background import BackgroundScheduler
 import urllib
 import httplib2
 import sys
@@ -33,7 +34,7 @@ def request_common(type):
         print(content.decode('utf-8'))
 
         # JSON 변경 후 저장
-        cJson.convert_json(type, content.decode('utf-8'), date.strftime(Const.FILENAME_FORMAT))
+        cJson.convert_json(service_type, type, content.decode('utf-8'), date.strftime(Const.FILENAME_FORMAT))
     except BrokenPipeError as bpe:
         print(bpe)
     except RuntimeError as re:
@@ -63,6 +64,9 @@ if __name__ == "__main__":
     # loginPwd
     login_pwd = sys.argv[2]
 
+    # live or tc
+    service_type = sys.argv[3]
+
     http = httplib2.Http()
 
     domain = Const.DOMAIN
@@ -78,6 +82,7 @@ if __name__ == "__main__":
     headers = {'Cookie': response['set-cookie']}
 
     sched = BlockingScheduler()
+    # sched = BackgroundScheduler()
 
     # Schedules job_function to be run on the third Friday
     # of June, July, August, November and December at 00:00, 01:00, 02:00 and 03:00
@@ -87,4 +92,7 @@ if __name__ == "__main__":
     sched.add_job(request_for_range_interest_ch, 'cron', second='5')
     sched.add_job(request_for_range_compare_ch, trigger='cron', second='9')
 
-    sched.start()
+    try:
+        sched.start()
+    except:
+        sched.shutdown()
