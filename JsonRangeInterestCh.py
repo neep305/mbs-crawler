@@ -2,22 +2,22 @@ import json
 import DataframeConverter as dc
 import Const
 
-def convert_json(service_type, type, result, strToday):
+def convert_json(service_type, screen_type, type, result, strToday):
     try:
 
         data = json.loads(result)
 
         if type == 'range_interest_ch':
-            convert_df_to_csv(service_type, type, data, strToday)
+            convert_df_to_csv(service_type, screen_type, type, data, strToday)
         elif type == 'range_compare_ch':
-            convert_df_to_csv(service_type, type, data, strToday)
+            convert_df_to_csv(service_type, screen_type, type, data, strToday)
         else:
             print('Not Available Yet')
     except RuntimeError as re:
         print(re)
 
 # Skylife 관심채널 시청가구 변화추이
-def convert_df_to_csv(service_type, type, data, current_time):
+def convert_df_to_csv(service_type, screen_type, type, data, current_time):
     temp = []
     temp_tot = []
 
@@ -39,6 +39,8 @@ def convert_df_to_csv(service_type, type, data, current_time):
             list_item['view_cnt'] = temprow['view_cnt']
             list_item['api_type'] = type_value
             list_item['service_type'] = service_type
+            # 추가 20171018 by Jason
+            list_item['screen_type'] = screen_type
 
             temp.append(list_item)
 

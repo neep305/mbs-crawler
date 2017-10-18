@@ -25,8 +25,7 @@ def getRequestForCrawling():
 
     # https://125.144.163.12:8080/chart/rangePrgm.do?lastTime=20170424172800&yesterdayLastTime=20170423173300&prevWeekLastTime=20170417173300&chGbnCd=&screenType=T&_=1493022523570
     # 실시간 시청형태 > 채널비교
-    url = domain + '/chart/rangeCompareCh.do?lastTime=' + strToday \
-          + '&chGbnCd=&screenType=S&_=' + date.strftime("%s")
+    url = domain + '/chart/rangeCompareCh.do?lastTime=' + strToday + '&chGbnCd=&screenType=S'
 
     response, content = http.request(url, 'GET', headers=headers)
 

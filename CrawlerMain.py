@@ -1,6 +1,5 @@
 from datetime import datetime, timedelta
 from apscheduler.schedulers.blocking import BlockingScheduler
-# from apscheduler.schedulers.background import BackgroundScheduler
 import urllib
 import httplib2
 import sys
@@ -34,7 +33,7 @@ def request_common(type):
         print(content.decode('utf-8'))
 
         # JSON 변경 후 저장
-        cJson.convert_json(service_type, type, content.decode('utf-8'), date.strftime(Const.FILENAME_FORMAT))
+        cJson.convert_json(service_type, screen_type, type, content.decode('utf-8'), date.strftime(Const.FILENAME_FORMAT))
     except BrokenPipeError as bpe:
         print(bpe)
     except RuntimeError as re:
@@ -45,11 +44,11 @@ def make_req_url(type, date, str_today):
     # 대시보드 > Skylife 관심채널 시청가구 변화추이
     if type == Const.RANGE_INTEREST_CH:
         return domain + '/chart/rangeInterestCh.do?lastTime=' + str_today \
-               + '&chGbnCd=&screenType=S&_=' + date.strftime("%s")
+               + '&chGbnCd=&screenType=S'
     # 실시간 시청형태 > 채널비교
     elif type == Const.RANGE_COMPARE_CH:
         return domain + '/chart/rangeCompareCh.do?lastTime=' + str_today \
-               + '&screenType=S&_=' + date.strftime("%s")
+               + '&screenType=' + screen_type
 
 if __name__ == "__main__":
 
@@ -64,8 +63,13 @@ if __name__ == "__main__":
     # loginPwd
     login_pwd = sys.argv[2]
 
-    # live or tc
+    # service_type
+    # 입력값 : T (or L) <-- T, L외에 임의의 값 사용 시 DB에 그대로 값이 반영되므로 정해진 값만 사용한다.
     service_type = sys.argv[3]
+
+    # screen_type
+    # 입력값 : T, S, V
+    screen_type = sys.argv[4]
 
     http = httplib2.Http()
 
