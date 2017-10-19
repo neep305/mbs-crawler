@@ -37,10 +37,9 @@ def convert_df_to_csv(service_type, screen_type, type, data, current_time):
             list_item['ch_nm'] = temprow['ch_nm']
             list_item['disp_ch_nm'] = temprow['disp_ch_nm']
             list_item['view_cnt'] = temprow['view_cnt']
-            list_item['api_type'] = type_value
+            # 추가 20171019 by Jason
+            list_item['api_type'] = type_value + screen_type
             list_item['service_type'] = service_type
-            # 추가 20171018 by Jason
-            list_item['screen_type'] = screen_type
 
             temp.append(list_item)
 
@@ -50,7 +49,7 @@ def convert_df_to_csv(service_type, screen_type, type, data, current_time):
         list_item_tot['api_type'] = type_value
         list_item_tot['service_type'] = service_type
 
-        # 실시간 채널 비교는 Skylife만
+        # 실시간 채널 비교는 Skylife만 계산함. (MBS사이트에서도 Dashboard와 실시간 채널상의 값이 다르게 계산됨)
         if type == Const.RANGE_INTEREST_CH:
             list_item_tot['tot_view_cnt'] = item['viewCntOTS'] + item['viewCntOTV']
         elif type == Const.RANGE_COMPARE_CH:
